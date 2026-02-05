@@ -1,0 +1,23 @@
+services:
+  database:
+    image: "postgres:16.0-alpine3.18"
+    environment:
+      - POSTGRES_USER=local_user
+      - POSTGRES_PASSWORD=local_password
+      - POSTGRES_DB=local_db
+    ports:
+      - "54321:5432"
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+        - DATABASE_JDBC_URL=jdbc:postgresql://database:5432/local_db
+        - POSTGRES_USER=local_user
+        - POSTGRES_PASSWORD=local_password
+        - SPRING_SECURITY_USER_NAME=admin
+        - SPRING_SECURITY_USER_PASSWORD=senha
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database

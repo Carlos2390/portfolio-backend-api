@@ -1,6 +1,6 @@
 services:
   database:
-    image: "postgres:16.0-alpine3.18"
+    image: "postgres:17.7-alpine3.23"
     environment:
       - POSTGRES_USER=local_user
       - POSTGRES_PASSWORD=local_password

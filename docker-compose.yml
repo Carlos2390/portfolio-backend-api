@@ -15,8 +15,8 @@ services:
         - DATABASE_JDBC_URL=jdbc:postgresql://database:5432/local_db
         - POSTGRES_USER=local_user
         - POSTGRES_PASSWORD=local_password
-        - SPRING_SECURITY_USER_NAME=admin
-        - SPRING_SECURITY_USER_PASSWORD=senha
+        - SPRING_JPA_SHOW_SQL=true
+        - API_SECURITY_TOKEN_SECRET=secret-key
     ports:
       - "8080:8080"
     depends_on:

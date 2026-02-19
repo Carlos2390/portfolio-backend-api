@@ -17,13 +17,13 @@ public class UserService {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     
-    public User create(UserDTO dto) {
+    public void save(UserDTO dto) {
         User user = new User();
         user.setUsernameExibition(dto.username());
         user.setPassword(bCryptPasswordEncoder.encode(dto.password()));
         user.setEmail(dto.email());
         user.setRole(UserRole.USER);
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     public User findUserByUsername(String username) {

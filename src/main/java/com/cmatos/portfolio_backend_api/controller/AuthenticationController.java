@@ -59,7 +59,7 @@ public class AuthenticationController {
         if (userService.verifyExistingUser(dto)) {
             return ResponseEntity.badRequest().body("Usuário já existe");
         }
-        userService.create(dto);
+        userService.save(dto);
 
         return ResponseEntity.ok().body("Usuário registrado com sucesso");
     }

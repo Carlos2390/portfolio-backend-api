@@ -1,5 +1,6 @@
 package com.cmatos.portfolio_backend_api.controller;
 
+import com.cmatos.portfolio_backend_api.records.CommentDTO;
 import com.cmatos.portfolio_backend_api.records.ProjectDTO;
 import com.cmatos.portfolio_backend_api.records.ProjectResponseDTO;
 import com.cmatos.portfolio_backend_api.services.ProjectService;
@@ -84,6 +85,36 @@ public class ProjectController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Adiciona um comentário a um projeto")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Comentário adicionado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Projeto não encontrado")
+    })
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<Void> addComment(@PathVariable Long id, @RequestBody String comment) {
+        try {
+            projectService.addComment(id, comment);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Lista os comentários de um projeto")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Comentários encontrados com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Projeto não encontrado")
+    })
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<Page<CommentDTO>> listProjectComments(@PathVariable Long id, @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        try {
+            Page<CommentDTO> comments = projectService.listComments(id, pageable);
+            return ResponseEntity.ok(comments);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }

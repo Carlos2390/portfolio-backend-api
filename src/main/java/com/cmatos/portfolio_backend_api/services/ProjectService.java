@@ -1,8 +1,10 @@
 package com.cmatos.portfolio_backend_api.services;
 
+import com.cmatos.portfolio_backend_api.model.Comment;
 import com.cmatos.portfolio_backend_api.model.Project;
 import com.cmatos.portfolio_backend_api.model.Skill;
 import com.cmatos.portfolio_backend_api.model.User;
+import com.cmatos.portfolio_backend_api.records.CommentDTO;
 import com.cmatos.portfolio_backend_api.records.ProjectDTO;
 import com.cmatos.portfolio_backend_api.records.ProjectResponseDTO;
 import com.cmatos.portfolio_backend_api.records.SkillDTO;
@@ -26,6 +28,9 @@ public class ProjectService {
 
     @Autowired
     private SkillService skillService;
+
+    @Autowired
+    private CommentService commentService;
 
     public Page<ProjectResponseDTO> getAllProjectsPageable(Pageable pageable) {
         return projectRepository.findAll(pageable).map(this::entityToResponse);
@@ -103,6 +108,28 @@ public class ProjectService {
             throw new AccessDeniedException("Projeto não pertence ao usuário que está tentando realizar a exclusão");
         }
         projectRepository.delete(projectById);
+    }
+
+    public void addComment(Long projectId, String comment) {
+        Project project = projectRepository.findProjectById(projectId);
+        if (project == null) {
+            throw new RuntimeException("Projeto não encontrado");
+        }
+        User sessionUser = getSessionUser();
+        Comment commentEntity = new Comment();
+        commentEntity.setProjectId(projectId);
+        commentEntity.setComment(comment);
+        commentEntity.setUserId(sessionUser.getId());
+        project.getComments().add(commentEntity);
+        projectRepository.save(project);
+    }
+
+    public Page<CommentDTO> listComments(Long projectId, Pageable pageable) {
+        Project project = projectRepository.findProjectById(projectId);
+        if (project == null) {
+            throw new RuntimeException("Projeto não encontrado");
+        }
+        return commentService.findCommentsByProjectId(projectId, pageable);
     }
 
     private User getSessionUser() {

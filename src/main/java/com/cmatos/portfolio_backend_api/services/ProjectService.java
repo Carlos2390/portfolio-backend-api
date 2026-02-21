@@ -1,5 +1,6 @@
 package com.cmatos.portfolio_backend_api.services;
 
+import com.cmatos.portfolio_backend_api.exception.ProjectNotFoundException;
 import com.cmatos.portfolio_backend_api.model.Comment;
 import com.cmatos.portfolio_backend_api.model.Project;
 import com.cmatos.portfolio_backend_api.model.Skill;
@@ -54,7 +55,7 @@ public class ProjectService {
     public void edit(Long projectId, ProjectDTO editedProject) {
         Project projectById = projectRepository.findProjectById(projectId);
         if (projectById == null) {
-            throw new RuntimeException("Projeto não encontrado");
+            throw new ProjectNotFoundException("Projeto não encontrado");
         }
         if (!projectById.getUserId().equals(getSessionUser().getId())) {
             throw new AccessDeniedException("Projeto não pertence ao usuário que está tentando realizar a edição");
@@ -102,7 +103,7 @@ public class ProjectService {
     public void deleteProject(Long projectId) {
         Project projectById = projectRepository.findProjectById(projectId);
         if (projectById == null) {
-            throw new RuntimeException("Projeto não encontrado");
+            throw new ProjectNotFoundException("Projeto não encontrado");
         }
         if (!projectById.getUserId().equals(getSessionUser().getId())) {
             throw new AccessDeniedException("Projeto não pertence ao usuário que está tentando realizar a exclusão");
@@ -113,7 +114,7 @@ public class ProjectService {
     public void addComment(Long projectId, String comment) {
         Project project = projectRepository.findProjectById(projectId);
         if (project == null) {
-            throw new RuntimeException("Projeto não encontrado");
+            throw new ProjectNotFoundException("Projeto não encontrado");
         }
         User sessionUser = getSessionUser();
         Comment commentEntity = new Comment();
@@ -127,7 +128,7 @@ public class ProjectService {
     public Page<CommentDTO> listComments(Long projectId, Pageable pageable) {
         Project project = projectRepository.findProjectById(projectId);
         if (project == null) {
-            throw new RuntimeException("Projeto não encontrado");
+            throw new ProjectNotFoundException("Projeto não encontrado");
         }
         return commentService.findCommentsByProjectId(projectId, pageable);
     }
@@ -135,7 +136,7 @@ public class ProjectService {
     private User getSessionUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
-            throw new RuntimeException("Usuário não autenticado");
+            throw new AccessDeniedException("Usuário não autenticado");
         }
         return (User) authentication.getPrincipal();
     }

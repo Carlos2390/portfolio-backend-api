@@ -3,8 +3,11 @@ package com.cmatos.portfolio_backend_api.controller;
 import com.cmatos.portfolio_backend_api.records.CommentDTO;
 import com.cmatos.portfolio_backend_api.records.ProjectDTO;
 import com.cmatos.portfolio_backend_api.records.ProjectResponseDTO;
+import com.cmatos.portfolio_backend_api.records.ValidationErrorResponse;
 import com.cmatos.portfolio_backend_api.services.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,9 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -44,7 +45,11 @@ public class ProjectController {
     }
 
     @Operation(summary = "Cria um novo projeto e retorna o projeto criado com o ID")
-    @ApiResponse(responseCode = "200", description = "Projeto criado com sucesso")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Projeto criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos",
+                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
+    })
     @PostMapping
     public ResponseEntity<ProjectResponseDTO> createProject(@RequestBody @Valid ProjectDTO dto) {
         ProjectResponseDTO savedProject = projectService.save(dto);
@@ -54,18 +59,14 @@ public class ProjectController {
     @Operation(summary = "Edita um projeto existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Projeto editado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos",
+                         content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
             @ApiResponse(responseCode = "403", description = "Projeto não pertence ao usuário logado"),
             @ApiResponse(responseCode = "404", description = "Projeto não encontrado")
     })
     @PutMapping("/{id}")
     public ResponseEntity<Void> editProject(@PathVariable Long id, @RequestBody @Valid ProjectDTO dto) {
-        try {
-            projectService.edit(id, dto);
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        projectService.edit(id, dto);
         return ResponseEntity.ok().build();
     }
 
@@ -77,13 +78,7 @@ public class ProjectController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
-        try {
-            projectService.deleteProject(id);
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        projectService.deleteProject(id);
         return ResponseEntity.ok().build();
     }
 
@@ -94,11 +89,7 @@ public class ProjectController {
     })
     @PostMapping("/{id}/comments")
     public ResponseEntity<Void> addComment(@PathVariable Long id, @RequestBody String comment) {
-        try {
-            projectService.addComment(id, comment);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        projectService.addComment(id, comment);
         return ResponseEntity.ok().build();
     }
 
@@ -109,12 +100,8 @@ public class ProjectController {
     })
     @GetMapping("/{id}/comments")
     public ResponseEntity<Page<CommentDTO>> listProjectComments(@PathVariable Long id, @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        try {
-            Page<CommentDTO> comments = projectService.listComments(id, pageable);
-            return ResponseEntity.ok(comments);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        Page<CommentDTO> comments = projectService.listComments(id, pageable);
+        return ResponseEntity.ok(comments);
     }
 
 }

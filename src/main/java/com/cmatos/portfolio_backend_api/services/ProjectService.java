@@ -33,6 +33,15 @@ public class ProjectService {
     @Autowired
     private CommentService commentService;
 
+    public ProjectResponseDTO findProjectById(Long id) {
+        Project project = projectRepository.findProjectById(id);
+        if (project == null) {
+            throw new ProjectNotFoundException("Projeto não encontrado");
+        }
+        return entityToResponse(project);
+    }
+
+
     public Page<ProjectResponseDTO> getAllProjectsPageable(Pageable pageable) {
         return projectRepository.findAll(pageable).map(this::entityToResponse);
     }
@@ -145,6 +154,7 @@ public class ProjectService {
         return new ProjectResponseDTO(
                 entity.getId(),
                 entity.getName(),
+                entity.getUser().getUsernameExibition(),
                 entity.getDocumentationUrl(),
                 entity.getInterfaceUrl(),
                 entity.getGithubUrl(),

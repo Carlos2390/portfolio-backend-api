@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +28,16 @@ public class ProjectController {
 
     @Autowired
     private ProjectService projectService;
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Buscar o projeto pelo ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Projeto encontrado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Projeto não encontrado")
+    })
+    public ProjectResponseDTO findProjectById(@PathVariable Long id) {
+        return projectService.findProjectById(id);
+    }
 
     @GetMapping("/all")
     @Operation(summary = "Busca todos os projetos")
@@ -48,26 +59,28 @@ public class ProjectController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Projeto criado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos",
-                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class),
+                            mediaType = "application/json")),
     })
     @PostMapping
     public ResponseEntity<ProjectResponseDTO> createProject(@RequestBody @Valid ProjectDTO dto) {
         ProjectResponseDTO savedProject = projectService.save(dto);
-        return ResponseEntity.ok(savedProject);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedProject);
     }
 
     @Operation(summary = "Edita um projeto existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Projeto editado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos",
-                         content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class),
+                            mediaType = "application/json")),
             @ApiResponse(responseCode = "403", description = "Projeto não pertence ao usuário logado"),
             @ApiResponse(responseCode = "404", description = "Projeto não encontrado")
     })
     @PutMapping("/{id}")
     public ResponseEntity<Void> editProject(@PathVariable Long id, @RequestBody @Valid ProjectDTO dto) {
         projectService.edit(id, dto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(summary = "Deleta um projeto que pertence ao usuário logado")
@@ -90,7 +103,7 @@ public class ProjectController {
     @PostMapping("/{id}/comments")
     public ResponseEntity<Void> addComment(@PathVariable Long id, @RequestBody String comment) {
         projectService.addComment(id, comment);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(summary = "Lista os comentários de um projeto")

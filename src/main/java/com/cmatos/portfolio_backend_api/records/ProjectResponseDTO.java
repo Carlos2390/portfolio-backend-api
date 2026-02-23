@@ -6,6 +6,7 @@ import java.util.List;
 public record ProjectResponseDTO(
         Long id,
         String name,
+        String userName,
         String documentationUrl,
         String interfaceUrl,
         String githubUrl,

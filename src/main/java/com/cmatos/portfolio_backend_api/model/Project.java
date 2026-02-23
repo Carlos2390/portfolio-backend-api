@@ -30,7 +30,7 @@ public class Project {
     private String name;
 
     @Column(name = "documentation_url")
-    private String documetationUrl;
+    private String documentationUrl;
 
     @Column(name = "interface_url")
     private String interfaceUrl;

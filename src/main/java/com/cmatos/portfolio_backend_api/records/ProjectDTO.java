@@ -9,7 +9,7 @@ public record ProjectDTO(
         @NotBlank(message = "O nome do projeto é obrigatório")
         String name,
         @URL(message = "A documentação deve ser uma URL válida")
-        String documetationUrl,
+        String documentationUrl,
         @URL(message = "A interface deve ser uma URL válida")
         String interfaceUrl,
         @URL(message = "O repositório deve ser uma URL válida")

@@ -92,7 +92,7 @@ public class ProjectService {
 
     public Project createEditProject(Project entity, ProjectDTO dto) {
         entity.setName(dto.name());
-        entity.setDocumetationUrl(dto.documetationUrl());
+        entity.setDocumentationUrl(dto.documentationUrl());
         entity.setInterfaceUrl(dto.interfaceUrl());
         entity.setGithubUrl(dto.githubUrl());
         entity.setImageUrl(dto.imageUrl());
@@ -145,7 +145,7 @@ public class ProjectService {
         return new ProjectResponseDTO(
                 entity.getId(),
                 entity.getName(),
-                entity.getDocumetationUrl(),
+                entity.getDocumentationUrl(),
                 entity.getInterfaceUrl(),
                 entity.getGithubUrl(),
                 entity.getImageUrl(),

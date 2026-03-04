@@ -30,8 +30,8 @@ public class SecurityConfig {
                         .requestMatchers("/status").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/project/all").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/project/{id}/comments").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/project/{id}", "/project/{id}/comments", "/project/all/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/skills/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);

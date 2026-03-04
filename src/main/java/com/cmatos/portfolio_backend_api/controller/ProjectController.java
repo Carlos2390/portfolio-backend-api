@@ -39,7 +39,7 @@ public class ProjectController {
     @Operation(summary = "Busca todos os projetos")
     @ApiResponse(responseCode = "200", description = "Projetos encontrados com sucesso")
     public ResponseEntity<Page<ProjectResponseDTO>> getAllProjectsPageable(
-            @RequestBody ProjectFilterDTO filters,
+            @RequestBody(required = false) ProjectFilterDTO filters,
             @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(projectService.getAllProjectsPageable(filters, pageable));
     }
@@ -48,7 +48,7 @@ public class ProjectController {
     @Operation(summary = "Busca todos os projetos do usuário logado")
     @ApiResponse(responseCode = "200", description = "Projetos encontrados com sucesso")
     public ResponseEntity<Page<ProjectResponseDTO>> getProjectsBySessionUser(
-            @RequestBody ProjectFilterDTO filters,
+            @RequestBody(required = false) ProjectFilterDTO filters,
             @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(projectService.getProjectsBySessionUser(filters, pageable));
     }

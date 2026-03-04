@@ -1,9 +1,6 @@
 package com.cmatos.portfolio_backend_api.controller;
 
-import com.cmatos.portfolio_backend_api.records.CommentDTO;
-import com.cmatos.portfolio_backend_api.records.ProjectDTO;
-import com.cmatos.portfolio_backend_api.records.ProjectResponseDTO;
-import com.cmatos.portfolio_backend_api.records.ValidationErrorResponse;
+import com.cmatos.portfolio_backend_api.records.*;
 import com.cmatos.portfolio_backend_api.services.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,16 +41,18 @@ public class ProjectController {
     @Operation(summary = "Busca todos os projetos")
     @ApiResponse(responseCode = "200", description = "Projetos encontrados com sucesso")
     public ResponseEntity<Page<ProjectResponseDTO>> getAllProjectsPageable(
-            @PageableDefault(sort = "updatedAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(projectService.getAllProjectsPageable(pageable));
+            @ParameterObject ProjectFilterDTO filters,
+            @PageableDefault(sort = {"createdAt"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(projectService.getAllProjectsPageable(filters, pageable));
     }
 
     @GetMapping
     @Operation(summary = "Busca todos os projetos do usuário logado")
     @ApiResponse(responseCode = "200", description = "Projetos encontrados com sucesso")
     public ResponseEntity<Page<ProjectResponseDTO>> getProjectsBySessionUser(
-            @PageableDefault(sort = "updatedAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(projectService.getProjectsBySessionUser(pageable));
+            @ParameterObject ProjectFilterDTO filters,
+            @PageableDefault(sort = {"createdAt"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(projectService.getProjectsBySessionUser(filters, pageable));
     }
 
     @Operation(summary = "Cria um novo projeto e retorna o projeto criado com o ID")
@@ -112,7 +112,7 @@ public class ProjectController {
             @ApiResponse(responseCode = "404", description = "Projeto não encontrado")
     })
     @GetMapping("/{id}/comments")
-    public ResponseEntity<Page<CommentDTO>> listProjectComments(@PathVariable Long id, @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<Page<CommentDTO>> listProjectComments(@PathVariable Long id, @PageableDefault(sort = {"createdAt"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Page<CommentDTO> comments = projectService.listComments(id, pageable);
         return ResponseEntity.ok(comments);
     }

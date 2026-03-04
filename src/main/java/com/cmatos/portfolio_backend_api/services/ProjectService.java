@@ -5,14 +5,13 @@ import com.cmatos.portfolio_backend_api.model.Comment;
 import com.cmatos.portfolio_backend_api.model.Project;
 import com.cmatos.portfolio_backend_api.model.Skill;
 import com.cmatos.portfolio_backend_api.model.User;
-import com.cmatos.portfolio_backend_api.records.CommentDTO;
-import com.cmatos.portfolio_backend_api.records.ProjectDTO;
-import com.cmatos.portfolio_backend_api.records.ProjectResponseDTO;
-import com.cmatos.portfolio_backend_api.records.SkillDTO;
+import com.cmatos.portfolio_backend_api.records.*;
 import com.cmatos.portfolio_backend_api.repository.ProjectRepository;
+import com.cmatos.portfolio_backend_api.repository.specs.ProjectSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,23 +40,34 @@ public class ProjectService {
         return entityToResponse(project);
     }
 
-
-    public Page<ProjectResponseDTO> getAllProjectsPageable(Pageable pageable) {
-        return projectRepository.findAll(pageable).map(this::entityToResponse);
+    public Page<ProjectResponseDTO> getAllProjectsPageable(ProjectFilterDTO filters, Pageable pageable) {
+        if (filters == null) {
+            return projectRepository.findAll(pageable).map(this::entityToResponse);
+        }
+        return projectRepository.findAll(
+                Specification
+                        .where(ProjectSpecifications.nameContain(filters.name()))
+                        .and(ProjectSpecifications.containSkills(filters.skills())),
+                pageable).map(this::entityToResponse);
     }
 
-    public Page<ProjectResponseDTO> getProjectsBySessionUser(Pageable pageable) {
+    public Page<ProjectResponseDTO> getProjectsBySessionUser(ProjectFilterDTO filters, Pageable pageable) {
         User sessionUser = getSessionUser();
-        return projectRepository.findProjectByUserIdOrderByCreatedAt(sessionUser.getId(), pageable)
-                .map(this::entityToResponse);
+        Specification<Project> specification = Specification.where(ProjectSpecifications.userIdIs(sessionUser.getId()));
+        if (filters != null) {
+            specification = specification.and(ProjectSpecifications.containSkills(filters.skills()))
+                    .and(ProjectSpecifications.nameContain(filters.name()));
+        }
+        return projectRepository.findAll(specification, pageable).map(this::entityToResponse);
     }
 
     public ProjectResponseDTO save(ProjectDTO dto) {
         Project project = createEditProject(new Project(), dto);
-        project.setUserId(getSessionUser().getId());
+        User sessionUser = getSessionUser();
+        project.setUserId(sessionUser.getId());
         associateSkillsToProject(project, dto.skills());
         projectRepository.save(project);
-
+        project.setUser(sessionUser);
         return entityToResponse(project);
     }
 

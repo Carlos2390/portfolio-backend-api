@@ -3,8 +3,12 @@ package com.cmatos.portfolio_backend_api.services;
 import com.cmatos.portfolio_backend_api.model.enums.UserRole;
 import com.cmatos.portfolio_backend_api.records.UserDTO;
 import com.cmatos.portfolio_backend_api.model.User;
+import com.cmatos.portfolio_backend_api.records.UserResponseDTO;
 import com.cmatos.portfolio_backend_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,5 +43,26 @@ public class UserService {
         User userByEmail = findUserByEmail(dto.email());
 
         return userByUsername != null || userByEmail != null;
+    }
+
+    public UserResponseDTO getSessioUserResponseDTO() {
+        User sessionUser = getSessionUser();
+        return entityToResponseDTO(sessionUser);
+    }
+
+    public UserResponseDTO entityToResponseDTO(User entity) {
+        return new UserResponseDTO(
+                entity.getUsernameExibition(),
+                entity.getEmail(),
+                entity.getRole().getRole()
+        );
+    }
+
+    private User getSessionUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new AccessDeniedException("Usuário não autenticado");
+        }
+        return (User) authentication.getPrincipal();
     }
 }

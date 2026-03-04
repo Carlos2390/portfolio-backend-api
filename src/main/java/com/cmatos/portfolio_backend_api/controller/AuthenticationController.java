@@ -5,6 +5,7 @@ import com.cmatos.portfolio_backend_api.model.User;
 import com.cmatos.portfolio_backend_api.records.AuthenticationDTO;
 import com.cmatos.portfolio_backend_api.records.LoginResponseDTO;
 import com.cmatos.portfolio_backend_api.records.UserDTO;
+import com.cmatos.portfolio_backend_api.records.UserResponseDTO;
 import com.cmatos.portfolio_backend_api.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,10 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -62,5 +60,10 @@ public class AuthenticationController {
         userService.save(dto);
 
         return ResponseEntity.ok().body("Usuário registrado com sucesso");
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDTO> getUserSessionAttributes() {
+        return ResponseEntity.ok(userService.getSessioUserResponseDTO());
     }
 }

@@ -25,4 +25,8 @@ public class SkillService {
     public SkillDTO entityToDTO(Skill entity) {
         return new SkillDTO(entity.getName());
     }
+
+    public List<SkillDTO> findAllSkills() {
+        return skillRepository.findAll().stream().map(this::entityToDTO).toList();
+    }
 }

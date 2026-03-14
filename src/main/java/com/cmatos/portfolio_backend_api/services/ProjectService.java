@@ -41,24 +41,30 @@ public class ProjectService {
     }
 
     public Page<ProjectResponseDTO> getAllProjectsPageable(ProjectFilterDTO filters, Pageable pageable) {
-        if (filters == null) {
-            return projectRepository.findAll(pageable).map(this::entityToResponse);
+        Specification<Project> spec = (root, query, cb) -> null;
+        if (filters != null) {
+            if (filters.name() != null && !filters.name().isBlank()) {
+                spec = spec.and(ProjectSpecifications.nameContain(filters.name()));
+            }
+            if (filters.skills() != null && !filters.skills().isEmpty()) {
+                spec = spec.and(ProjectSpecifications.containSkills(filters.skills()));
+            }
         }
-        return projectRepository.findAll(
-                Specification
-                        .where(ProjectSpecifications.nameContain(filters.name()))
-                        .and(ProjectSpecifications.containSkills(filters.skills())),
-                pageable).map(this::entityToResponse);
+        return projectRepository.findAll(spec, pageable).map(this::entityToResponse);
     }
 
     public Page<ProjectResponseDTO> getProjectsBySessionUser(ProjectFilterDTO filters, Pageable pageable) {
         User sessionUser = getSessionUser();
-        Specification<Project> specification = Specification.where(ProjectSpecifications.userIdIs(sessionUser.getId()));
+        Specification<Project> spec = Specification.where(ProjectSpecifications.userIdIs(sessionUser.getId()));
         if (filters != null) {
-            specification = specification.and(ProjectSpecifications.containSkills(filters.skills()))
-                    .and(ProjectSpecifications.nameContain(filters.name()));
+            if (filters.name() != null && !filters.name().isBlank()) {
+                spec = spec.and(ProjectSpecifications.nameContain(filters.name()));
+            }
+            if (filters.skills() != null && !filters.skills().isEmpty()) {
+                spec = spec.and(ProjectSpecifications.containSkills(filters.skills()));
+            }
         }
-        return projectRepository.findAll(specification, pageable).map(this::entityToResponse);
+        return projectRepository.findAll(spec, pageable).map(this::entityToResponse);
     }
 
     public ProjectResponseDTO save(ProjectDTO dto) {
